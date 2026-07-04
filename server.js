@@ -1,16 +1,33 @@
-        const TelegramBot = require('node-telegram-bot-api');
+const TelegramBot = require('node-telegram-bot-api');
 const axios = require('axios');
 const express = require('express');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-app.get('/', (req, res) => res.send('Bot is running 24/7!'));
-app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
 
+// Render URL aur Token configuration
+const URL = 'https://guruhtmlfilesencrupter.onrender.com'; 
 const TOKEN = '8322009944:AAEtskUcDK3eKa4l2HKQBfkvr4jS5SEsgMI';
 const ADMINS = ['itx_GuRu410', 'Itxtalha750']; 
 
-const bot = new TelegramBot(TOKEN, { polling: true });
+// Express settings for parsing JSON bodies
+app.use(express.json());
+
+// Initialize bot without polling (using Webhook instead)
+const bot = new TelegramBot(TOKEN);
+bot.setWebHook(`${URL}/bot${TOKEN}`);
+
+// Telegram updates handle karne ka route
+app.post(`/bot${TOKEN}`, (req, res) => {
+    bot.processUpdate(req.body);
+    res.sendStatus(200);
+});
+
+// Home route to keep Render happy and monitoring working
+app.get('/', (req, res) => res.send('Bot is running 24/7 via Webhooks!'));
+
+app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
+
 const userStates = {};
 
 const mainMenu = {
@@ -28,13 +45,15 @@ const mainMenu = {
     }
 };
 
+// Start Command
 bot.onText(/\/start/, (msg) => {
     const chatId = msg.chat.id;
     userStates[chatId] = null;
-    const welcomeText = `👑 *WELCOME TO TALHA GURU HTML OBFUSCATOR PRO* 👑\n\n⚡ _POWERED BY  GURU  TALHA \n🔥 _I WILL PROTECT YOUR HTML_\n\n👇 *Select an option* 👇:`;
+    const welcomeText = `👑 *WELCOME TO TALHA GURU HTML OBFUSCATOR PRO* 👑\n\n⚡ _POWERED BY  GURU  TALHA_\n🔥 _I WILL PROTECT YOUR HTML_\n\n👇 *Select an option* 👇:`;
     bot.sendMessage(chatId, welcomeText, { parse_mode: 'Markdown', ...mainMenu });
 });
 
+// Callback Query Handler (Buttons click)
 bot.on('callback_query', async (callbackQuery) => {
     const message = callbackQuery.message;
     const chatId = message.chat.id;
@@ -50,6 +69,7 @@ bot.on('callback_query', async (callbackQuery) => {
     bot.answerCallbackQuery(callbackQuery.id);
 });
 
+// Message Receiver and Processor
 bot.on('message', async (msg) => {
     const chatId = msg.chat.id;
     const text = msg.text;
@@ -57,6 +77,7 @@ bot.on('message', async (msg) => {
     if (!text || text.startsWith('/start')) return;
     const state = userStates[chatId];
 
+    // Scenario 1: Obfuscating HTML
     if (state === 'AWAITING_HTML') {
         userStates[chatId] = null;
         bot.sendMessage(chatId, '⚙️ *Advanced Encryption Layer Applying...*', { parse_mode: 'Markdown' });
@@ -65,7 +86,6 @@ bot.on('message', async (msg) => {
             const escapedHtml = encodeURIComponent(text);
             const base64Encoded = Buffer.from(escapedHtml).toString('base64');
             
-            // Render proof injection template
             const protectedCode = `<html lang="en">
 <head><meta charset="UTF-8"><title>Protected Content</title></head>
 <body>
@@ -92,6 +112,7 @@ bot.on('message', async (msg) => {
             bot.sendMessage(chatId, '❌ *Failed to obfuscate code.*', { parse_mode: 'Markdown' });
         }
     } 
+    // Scenario 2: URL to HTML Extraction
     else if (state === 'AWAITING_URL') {
         userStates[chatId] = null;
         let url = text.trim();
