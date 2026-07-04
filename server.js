@@ -7,7 +7,7 @@ const PORT = process.env.PORT || 3000;
 
 // Render URL aur Token configuration
 const URL = 'https://guruhtmlfilesencrupter.onrender.com'; 
-const TOKEN = '8322009944:AAEtskUcDK3eKa4l2HKQBfkvr4jS5SEsgMI';
+const TOKEN = '8080500872:AAEOlbilndnVvAHj_8vN7pC495c9ALNluWk';
 const ADMINS = ['itx_GuRu410', 'Itxtalha750']; 
 
 // Express settings for parsing JSON bodies
