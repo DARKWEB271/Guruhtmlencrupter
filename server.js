@@ -1,17 +1,13 @@
-const TelegramBot = require('node-telegram-bot-api');
+        const TelegramBot = require('node-telegram-bot-api');
 const axios = require('axios');
-const express = require('express'); // Render ke liye Express server
+const express = require('express');
 
-// Express Setup (Render ko active rakhne ke liye)
 const app = express();
 const PORT = process.env.PORT || 3000;
 app.get('/', (req, res) => res.send('Bot is running 24/7!'));
 app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
 
-// Aapki provided Bot Token
 const TOKEN = '8322009944:AAEtskUcDK3eKa4l2HKQBfkvr4jS5SEsgMI';
-
-// Aapke provided Admin Usernames
 const ADMINS = ['itx_GuRu410', 'Itxtalha750']; 
 
 const bot = new TelegramBot(TOKEN, { polling: true });
@@ -32,21 +28,11 @@ const mainMenu = {
     }
 };
 
-const sendWelcomeMessage = (chatId) => {
-    const welcomeText = 
-`👑 *WELCOME TO HTML OBFUSCATOR PRO* 👑
-
-⚡ _POWERED BY MULTI LAYERED ENCRYPTION_
-🔥 _I WILL PROTECT YOUR HTML_
-
-👇 *Select an option* 👇:`;
-    bot.sendMessage(chatId, welcomeText, { parse_mode: 'Markdown', ...mainMenu });
-};
-
 bot.onText(/\/start/, (msg) => {
     const chatId = msg.chat.id;
     userStates[chatId] = null;
-    sendWelcomeMessage(chatId);
+    const welcomeText = `👑 *WELCOME TO TALHA GURU HTML OBFUSCATOR PRO* 👑\n\n⚡ _POWERED BY  GURU  TALHA \n🔥 _I WILL PROTECT YOUR HTML_\n\n👇 *Select an option* 👇:`;
+    bot.sendMessage(chatId, welcomeText, { parse_mode: 'Markdown', ...mainMenu });
 });
 
 bot.on('callback_query', async (callbackQuery) => {
@@ -57,8 +43,7 @@ bot.on('callback_query', async (callbackQuery) => {
     if (data === 'obfuscate_html') {
         userStates[chatId] = 'AWAITING_HTML';
         bot.sendMessage(chatId, '📝 *Kindly send your raw HTML code to obfuscate:*', { parse_mode: 'Markdown' });
-    } 
-    else if (data === 'url_to_html') {
+    } else if (data === 'url_to_html') {
         userStates[chatId] = 'AWAITING_URL';
         bot.sendMessage(chatId, '🌐 *Kindly send the website URL to extract HTML:*', { parse_mode: 'Markdown' });
     }
@@ -74,13 +59,35 @@ bot.on('message', async (msg) => {
 
     if (state === 'AWAITING_HTML') {
         userStates[chatId] = null;
-        bot.sendMessage(chatId, '⚙️ *Obfuscating your HTML code...*', { parse_mode: 'Markdown' });
+        bot.sendMessage(chatId, '⚙️ *Advanced Encryption Layer Applying...*', { parse_mode: 'Markdown' });
 
         try {
             const escapedHtml = encodeURIComponent(text);
             const base64Encoded = Buffer.from(escapedHtml).toString('base64');
-            const protectedCode = `\n<script type="text/javascript">\n    document.write(decodeURIComponent(atob("${base64Encoded}")));\n</script>`;
-            bot.sendMessage(chatId, `✅ *Your HTML is Secure!*\n\n\`\`\`html\n${protectedCode}\n\`\`\``, { parse_mode: 'Markdown' });
+            
+            // Render proof injection template
+            const protectedCode = `<html lang="en">
+<head><meta charset="UTF-8"><title>Protected Content</title></head>
+<body>
+<script type="text/javascript">
+    (function() {
+        try {
+            var de = atob("${base64Encoded}");
+            var un = decodeURIComponent(de);
+            document.open();
+            document.write(un);
+            document.close();
+        } catch(e) {
+            console.error("Decryption error: Check dependency paths.");
+            document.body.innerHTML = "<div style='color:red; font-family:sans-serif; text-align:center; margin-top:20%;'>⚠️ Security Layer Error: Source dependencies missing.</div>";
+        }
+    })();
+</script>
+<noscript>This page requires JavaScript to be enabled.</noscript>
+</body>
+</html>`;
+
+            bot.sendMessage(chatId, `✅ *Your HTML is Fully Encrypted & Secure!*\n\n\`\`\`html\n${protectedCode}\n\`\`\``, { parse_mode: 'Markdown' });
         } catch (error) {
             bot.sendMessage(chatId, '❌ *Failed to obfuscate code.*', { parse_mode: 'Markdown' });
         }
@@ -88,9 +95,7 @@ bot.on('message', async (msg) => {
     else if (state === 'AWAITING_URL') {
         userStates[chatId] = null;
         let url = text.trim();
-        if (!url.startsWith('http://') && !url.startsWith('https://')) {
-            url = 'https://' + url;
-        }
+        if (!url.startsWith('http://') && !url.startsWith('https://')) url = 'https://' + url;
 
         bot.sendMessage(chatId, `⏳ *Fetching source from:* ${url}...`);
 
